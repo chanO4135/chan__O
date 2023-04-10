@@ -1,6 +1,6 @@
 ﻿// lecture5-1.cpp : 이 파일에는 'main' 함수가 포함됩니다. 거기서 프로그램 실행이 시작되고 종료됩니다.
 //
-#define CRT_NO_SECURE_WARNINGS
+#define CRT_SECURE_NO_WARNINGS
 #include<stdio.h>
 #include<iostream>
 #include<conio.h>
@@ -40,9 +40,12 @@ int print_introducation_screen()
 		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 	}
 int game_start() {
-	int num1 = 5;
-	int num2 = 5;
+	int num1=0;
+	int num2=0;
 
+	std::cout << "가로세로 길이입력";
+	scanf_s("%d",&num1);
+	scanf_s("%d",&num2);
 	for (int i = 1; i <= num1; i++) {
 		for (int j = 1; j <= num2; j++) {
 			if (i == 1 || i == num1 || j == 1 || j == num2) {
