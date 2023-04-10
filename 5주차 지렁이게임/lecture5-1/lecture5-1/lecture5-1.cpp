@@ -1,6 +1,6 @@
 ﻿// lecture5-1.cpp : 이 파일에는 'main' 함수가 포함됩니다. 거기서 프로그램 실행이 시작되고 종료됩니다.
 //
-
+#define CRT_NO_SECURE_WARNINGS
 #include<stdio.h>
 #include<iostream>
 #include<conio.h>
@@ -32,6 +32,31 @@ int print_introducation_screen()
 
 	return 0;
 }
+//커서이동
+	void gotoxy(int x, int y) {
+		//x,y좌표설정
+		COORD pos = { x,y };
+		//커서이동
+		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+	}
+int game_start() {
+	int num1 = 5;
+	int num2 = 5;
+
+	for (int i = 1; i <= num1; i++) {
+		for (int j = 1; j <= num2; j++) {
+			if (i == 1 || i == num1 || j == 1 || j == num2) {
+				gotoxy(j * 2 , i);
+				std::cout << "*";
+			}
+			else {
+				std::cout << " ";
+			}
+		}
+		std::cout << "\n";
+	}
+	return 0;
+}
 int main() {
 	int game_state = 0;
 	int is_game_running = 1;
@@ -49,9 +74,21 @@ int main() {
 				
 				if (key_input == '2')
 					game_state = 2;
+				else if (key_input == '1') {
+					game_state = 1;
+				}
 				else if (key_input == '4' || key_input == 27)
 					is_game_running = 0;
 				break;
+		case 1:
+			system("cls");
+			game_start();
+			key_input = _getch();
+			if (key_input == 27) {
+				system("cls");
+				game_state = 0;
+				break;
+			}
 		case 2:
 			print_introducation_screen();
 			key_input = 0;
@@ -65,19 +102,9 @@ int main() {
 	}
 }
 
-///커서이동
-	//void gotoxy(int x, int y) {
-	//	//x,y좌표설정
-	//	COORD pos = { x,y };
-	//	//커서이동
-	//	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
-	//}
 
-	//int main() {
-	//	gotoxy(10, 5);
-	//	std::cout << "여기가(10,5)입니다.";
-	//	return 0;
-	//}
+	
+	
 
 
 // 프로그램 실행: <Ctrl+F5> 또는 [디버그] > [디버깅하지 않고 시작] 메뉴
