@@ -4,73 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>레이아웃 예제</title>
+    <link href="week01.css" rel="stylesheet" type="text/css" />
     <style>
-        /* 스타일링을 위한 CSS 코드 */
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        .container {
-            border: 2px solid #333;
-            border-radius: 10px;
-            padding: 10px;
-            margin: 20px auto;
-            width: 300px;
-        }
-
-        .header {
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .content {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .left {
-            flex: 1;
-            border: 1px solid #333;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        .right {
-            flex: 2;
-            border: 1px solid #333;
-            padding: 10px;
-            border-radius: 5px;
-            display: none;
-            text-align: center;
-           
-        }
-
-        .button {
-            display: block;
-            width: 50%;
-            padding: 5px 0;
-            margin: 5px 0;
-            text-align: center;
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .button_1 {
-            display: block;
-            width: 100%;
-            padding: 5px 0;
-            margin: 5px 0;
-            text-align: center;
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+      
+       
     </style>
 </head>
 <body>
@@ -130,7 +67,7 @@
             // 로그인 버튼을 누른 경우 (아이디가 "a"인 경우에만 로그인 성공)
             if (username === "a") {
                 isLoggedIn = true;
-                container.style.width = "400px";
+                container.style.width = "420px";
                 rightClass[0].style.display = 'block';
                
                 
