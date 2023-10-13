@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESTful API Client</title>
+</head>
+<body>
+    <button id="getData">데이터 가져오기</button>
+    <p id="output"></p>
+    <script>
+        const button = document.getElementById('getData');
+        const output = document.getElementById('output');
+
+        button.addEventListener('click', () => {
+            fetch('http://localhost:7042/hi') // Server's hi API GET request
+                .then(response => response.json())
+                .then(data => {
+                    output.textContent = data.message; // Display the message in the <p> tag
+                });
+        });
+    </script>
+</body>
+</html>
