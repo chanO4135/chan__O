@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>스네이크 게임</title>
+    <style>
+          h1 {
+            font-family: 'Arial', sans-serif;
+            font-size: 48px;
+            color: black;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        #snakeGameCanvas {
+        border: 2px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="snakeGameCanvas" width="1000" height="800" backgroundcolor = "yellow"></canvas>
+    <h1 style="text-align: center; font-size: 36px;">뱀 게임 </h1>
+   
+    
+    <script>
+        const canvas = document.getElementById('snakeGameCanvas');
+        const ctx = canvas.getContext('2d');
+        const snakeSize = 50;
+        const snakeGap = snakeSize / 50; // 뱀 몸통 간격
+        let snake = [{ x: 400, y: 400 }];
+        let mouseX = 0;
+        let mouseY = 0;
+        let speed = 3;
+        let apple = { x: 300, y: 300 };
+        let score = 0;
+        let isAccelerating = false;
+        let obstacles = [];
+        let stopwatch = 0;
+
+        const obstacleColors = ['#FFA500', '#FFFF00', '#FF00FF'];
+
+                function drawSnake() {
+            for (let i = 0; i < snake.length; i++) {
+                let randomColor;
+                // 0부터 5 사이의 랜덤한 숫자를 생성
+                const colorIndex = Math.floor(Math.random() * 6);
+                switch (colorIndex) {
+                    case 0:
+                        randomColor = 'red';
+                        break;
+                    case 1:
+                        randomColor = 'orange';
+                        break;
+                    case 2:
+                        randomColor = 'yellow';
+                        break;
+                    case 3:
+                        randomColor = 'blue';
+                        break;
+                    case 4:
+                        randomColor = 'green';
+                        break;
+                    case 5:
+                        randomColor = 'purple';
+                        break;
+                }
+                ctx.fillStyle = randomColor;
+                ctx.beginPath();
+                ctx.arc(snake[i].x + snakeSize / 4, snake[i].y + snakeSize / 4, snakeSize / 6, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+        }
+
+
+        function drawApple() {
+            ctx.fillStyle = '#FF0000';
+            ctx.beginPath();
+            ctx.arc(apple.x + snakeSize / 4, apple.y + snakeSize / 4, snakeSize / 6, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        function drawObstacles() {
+            for (let i = 0; i < obstacles.length; i++) {
+                ctx.fillStyle = obstacleColors[i % obstacleColors.length];
+                ctx.save(); // 현재 상태 저장
+                ctx.translate(obstacles[i].x + snakeSize / 2, obstacles[i].y + snakeSize / 2);
+                ctx.rotate((Math.PI / 180) * (stopwatch % 360)); // 1도씩 회전
+                if (i % 2 == 0) {
+                    // 사각형 장애물 그리기
+                    ctx.fillRect(-snakeSize / 4, -snakeSize / 4, snakeSize / 2, snakeSize / 2);
+                } else {
+                    // 삼각형 장애물 그리기
+                    ctx.beginPath();
+                    ctx.moveTo(-snakeSize / 4, -snakeSize / 4);
+                    ctx.lineTo(-snakeSize / 4, snakeSize / 4);
+                    ctx.lineTo(snakeSize / 4, 0);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                ctx.restore(); // 이전 상태로 복구
+            }
+        }
+
+        function update() {
+            if (isAccelerating) {
+                speed = 6;
+            } else {
+                speed = 3;
+            }
+
+            const dx = mouseX - snake[0].x;
+            const dy = mouseY - snake[0].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > 0) {
+                const newX = snake[0].x + (dx / distance) * speed;
+                const newY = snake[0].y + (dy / distance) * speed;
+
+                snake.unshift({ x: newX, y: newY });
+
+                // 사과와의 충돌 확인
+                if (newX >= apple.x && newX <= apple.x + snakeSize / 2 && newY >= apple.y && newY <= apple.y + snakeSize / 2) {
+                    score++;
+                    generateApple();
+                    snakeGrow();
+                } else {
+                    snake.pop();
+                }
+            }
+
+            stopwatch++;
+        }
+
+        function generateApple() {
+            let overlapping = true;
+            while (overlapping) {
+                overlapping = false;
+                apple.x = Math.floor(Math.random() * (canvas.width / snakeSize)) * snakeSize;
+                apple.y = Math.floor(Math.random() * (canvas.height / snakeSize)) * snakeSize;
+
+                for (let i = 0; i < obstacles.length; i++) {
+                    if (
+                        apple.x === obstacles[i].x ||
+                        apple.y === obstacles[i].y ||
+                        apple.x === snake[0].x ||
+                        apple.y === snake[0].y
+                    ) {
+                        overlapping = true;
+                        break;
+                    }
+                }
+            }
+        }
+        function generateObstacle() {
+            const obstacle = {
+                x: 0,
+                y: 0,
+                dx: 0,
+                dy: 0,
+            };
+
+            // 랜덤으로 벽을 선택 (0: 위, 1: 오른쪽, 2: 아래, 3: 왼쪽)
+            const randomEdge = Math.floor(Math.random() * 4);
+
+            if (randomEdge === 0) { // 위쪽 벽
+                obstacle.x = Math.floor(Math.random() * (canvas.width / snakeSize)) * snakeSize;
+                obstacle.y = -snakeSize;
+                obstacle.dy = 2;
+            } else if (randomEdge === 1) { // 오른쪽 벽
+                obstacle.x = canvas.width;
+                obstacle.y = Math.floor(Math.random() * (canvas.height / snakeSize)) * snakeSize;
+                obstacle.dx = -2;
+            } else if (randomEdge === 2) { // 아래쪽 벽
+                obstacle.x = Math.floor(Math.random() * (canvas.width / snakeSize)) * snakeSize;
+                obstacle.y = canvas.height;
+                obstacle.dy = -2;
+            } else { // 왼쪽 벽
+                obstacle.x = -snakeSize;
+                obstacle.y = Math.floor(Math.random() * (canvas.height / snakeSize)) * snakeSize;
+                obstacle.dx = 2;
+            }
+            
+            if (obstacle.x < 0 || obstacle.x >= canvas.width || obstacle.y < 0 || obstacle.y >= canvas.height) {
+                // 캔버스 바깥에서 생성된 경우에만 obstacles 배열에 추가
+                obstacles.push(obstacle);
+            }
+        }
+
+
+
+        
+
+
+        function moveObstacles() {
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].x += obstacles[i].dx;
+                obstacles[i].y += obstacles[i].dy;
+
+                // 화면 경계를 벗어나면 위치 초기화
+                if (
+                    obstacles[i].x < 0 || obstacles[i].x >= canvas.width ||
+                    obstacles[i].y < 0 || obstacles[i].y >= canvas.height
+                ) {
+                    obstacles[i].x = Math.floor(Math.random() * (canvas.width / snakeSize)) * snakeSize;
+                    obstacles[i].y = Math.floor(Math.random() * (canvas.height / snakeSize)) * snakeSize;
+                }
+            }
+        }
+
+       
+
+        function snakeGrow() {
+            const tailX = snake[snake.length - 1].x;
+            const tailY = snake[snake.length - 1].y;
+            const tailDirectionX = (snake[snake.length - 1].x - snake[snake.length - 2].x);
+            const tailDirectionY = (snake[snake.length - 1].y - snake[snake.length - 2].y);
+
+            // 꼬리의 방향을 기준으로 새 세그먼트의 방향 결정
+            let newSegmentX = tailX + tailDirectionX * (snakeGap / 2);
+            let newSegmentY = tailY + tailDirectionY * (snakeGap / 2);
+
+            snake.push({ x: newSegmentX, y: newSegmentY });
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            update();
+            moveObstacles(); // 장애물 이동
+            drawSnake();
+            drawApple();
+            drawObstacles();
+            checkObstacleCollision();
+
+            // 일정 간격으로 새로운 장애물 생성
+            if (Math.random() < 0.02) {
+                generateObstacle();
+            }
+
+            // 시간과 지렁이 길이 표시
+            ctx.font = "16px Arial";
+            ctx.fillStyle = "#000";
+            ctx.fillText(`시간: ${Math.floor(stopwatch / 60)} 초`, 10, 20);
+            ctx.fillText(`지렁이 길이: ${(snake.length)}`, 10, 40);
+        }
+
+        function resetGame() {
+            snake = [{ x: 400, y: 400 }];
+            mouseX = 0;
+            mouseY = 0;
+            speed = 3;
+            apple = { x: 300, y: 300 };
+            score = 0;
+            isAccelerating = false;
+            obstacles = [];
+            stopwatch = 0;
+        }
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = event.clientX - canvas.getBoundingClientRect().left;
+            mouseY = event.clientY - canvas.getBoundingClientRect().top;
+        });
+
+        document.addEventListener('mousedown', () => {
+            isAccelerating = true;
+        });
+
+        document.addEventListener('mouseup', () => {
+            isAccelerating = false;
+        });
+
+        setInterval(gameLoop, 1000 / 60);
+        
+        function checkObstacleCollision() {
+        for (let i = 0; i < obstacles.length; i++) {
+            const obstacle = obstacles[i];
+            if (
+                snake[0].x + snakeSize / 4 >= obstacle.x - snakeSize / 4 &&
+                snake[0].x - snakeSize / 4 <= obstacle.x + snakeSize / 2 &&
+                snake[0].y + snakeSize / 4 >= obstacle.y - snakeSize / 4 &&
+                snake[0].y - snakeSize / 4 <= obstacle.y + snakeSize / 2
+            ) {
+                // 게임 오버
+                alert(`게임 오버! 내 점수: ${score} - 시간: ${Math.floor(stopwatch / 60)} 초`);
+                resetGame();
+                return true;
+            }
+        }
+        return false; // 게임 계속 진행
+    }
+
+    </script>
+    
+</body>
+</html>
